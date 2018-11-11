@@ -1,9 +1,9 @@
 local BASE = (...)..'.' 
-print(BASE)
+--print(BASE)
 local i= BASE:find("SimpleUI.$")
-print (i)
+--print (i)
 BASE=BASE:sub(1,i-1)
-print(BASE)
+--print(BASE)
 
 local b   = require(BASE..'Button')
 local s   = require(BASE..'Slider')
@@ -82,6 +82,11 @@ local function check_components()
    if redraw == true then  else redraw = draw end
   end
   
+end
+
+
+function ui.CountElements()
+    return #components
 end
 
 

@@ -10,7 +10,7 @@ end
 
 
 function love.update(dt)
-  game.update()
+  game.update(dt)
   
   
 end
@@ -19,17 +19,7 @@ function love.draw()
   game.draw()
   
   l.update()
-  changed =l.getchanged()
-  
-  
-  for i,file in ipairs(changed) do
-   print(i.."  "..file) 
-   if file == "game.lua" then
-     print("changed...")
-      game.load()
-   end
-   
-  end
+
   
   --print("test")
 end
@@ -38,3 +28,16 @@ end
 function love.keypressed(k,s,r)
   game.keyHandle(k,s,r)
 end
+
+function love.keyreleased(k)
+    
+end
+
+function love.mousepressed(x,y,btn,t)
+  game.MouseHandle(x,y,btn,t)
+end
+
+function love.mousemoved(x,y,dx,dy)
+    game.MouseMoved(x,y)
+end
+
