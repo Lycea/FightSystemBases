@@ -26,11 +26,11 @@ end
 
 
 function love.keypressed(k,s,r)
-  game.keyHandle(k,s,r)
+  game.keyHandle(k,s,r,true)
 end
 
 function love.keyreleased(k)
-    
+    game.keyHandle(k,0,0,false)
 end
 
 function love.mousepressed(x,y,btn,t)
@@ -40,4 +40,3 @@ end
 function love.mousemoved(x,y,dx,dy)
     game.MouseMoved(x,y)
 end
-
