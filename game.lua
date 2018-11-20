@@ -48,7 +48,7 @@ local dir_look ={
  
 local last_key="space" 
 local key_list ={} 
-local bar_slot =1 
+local bar_slot ="1"
  
 ----------------------------------------------------------- 
 -- special data fields for debugging / testing only 
@@ -60,9 +60,6 @@ local slot_preview={}
  
 --TODO: setup callbacks 
 local bar_cbs={ 
-    [1]=base.tileField, 
-    [2]=base.plantField, 
-    [3]=base.sleep 
     } 
  
 --------------------------------------------------------------------------------------------------- 
@@ -131,12 +128,12 @@ end
 local Crop={} 
 function Crop:new(x,y,crop,water) 
   local tmp ={} 
-  tmp.state   = 1 
-  tmp.crop    = crop   
+  tmp.state   = 1 --state in which the plant is in
+  tmp.crop    = crop   --what kind of plant is it ?
   tmp.watered = water or false 
-  tmp.days_max =12 
+  tmp.days_max =12 --how long till it is fully grown ?
   tmp.tps = math.floor(tmp.days_max/4) 
-  tmp.time = 0 
+  tmp.time = 0  --actual state in the actual frame
    
   tmp.x = x 
   tmp.y = y 
@@ -145,16 +142,19 @@ function Crop:new(x,y,crop,water)
     if self.watered == false then 
       draw.tile(crops,self.state,self.crop,x,y) 
     else 
-      draw.tile(crops+1,self.state,self.crop,x,y) 
+      draw.tile(crops,self.state,self.crop+1,x,y) 
     end 
   end 
    
-  tmp.update = function(self)  
-      self.time= self.time +1 
-      if self.time > self.tps and self.state <4 then 
-        tmp.state = tmp.state+1 
-        tmp.time = 0 
-      end 
+  tmp.update = function(self)
+      if self.watered == true then
+         self.time= self.time +1 
+          if self.time > self.tps and self.state <4 and self.watered == true then 
+            tmp.state = tmp.state+1 
+            tmp.time = 0 
+          end 
+      
+      end
   end 
    
   setmetatable(tmp, self) 
@@ -298,6 +298,32 @@ end
  
  
  
+
+ 
+ 
+function base.tileActual()
+     for idx,slot in pairs(slot_preview) do
+         fields[slot.id].grid[slot.y][slot.x]=Tiled:new(slot.x*32+fields[slot.id].x-32,slot.y*32+fields[slot.id].y-32)
+     end
+ end
+ 
+ function base.waterActual()
+     for idx,slot in pairs(slot_preview) do
+         fields[slot.id].grid[slot.y][slot.x].watered = true
+     end
+     
+ end
+ 
+ function base.plantActual()
+     for idx,slot in pairs(slot_preview) do
+        if fields[slot.id].grid[slot.y][slot.x].tiled == true then
+         fields[slot.id].grid[slot.y][slot.x] = Crop:new(slot.x*32+fields[slot.id].x-32,slot.y*32+fields[slot.id].y-32,1,fields[slot.id].grid[slot.y][slot.x].watered)
+        end
+     end
+ end
+ 
+ 
+ 
 --test function to tile all the fields on a field 
 --can later be changed to a single one and called when needed 
 function base.tileField(field_idx) 
@@ -346,9 +372,9 @@ function cb_handle(id,name)
   end 
    
   local id_cb_list={ 
-    tileField, 
-    plantField, 
-    sleep, 
+    base.tileField, 
+    base.plantField, 
+    base.sleep, 
   } 
    
    
@@ -374,9 +400,9 @@ function game.load()
   fields[3]=new_field(32*8,32*5,10,10) 
    
   bar_cbs={ 
-      base.tileField, 
-      base.plantField, 
-      base.sleep 
+      ["1"]=base.tileActual, 
+      ["2"]=base.plantActual, 
+      ["3"]=base.waterActual 
       } 
    
   ui.init() 
@@ -522,8 +548,14 @@ end
  
  
 function game.MouseHandle(x,y,btn) 
-    print(bar_cbs[bar_slot]) 
-    bar_cbs[bar_slot]() 
+    if btn == 1 then
+        for key,val in pairs(bar_cbs) do
+            print(key,value)
+        end
+        
+        print(bar_cbs[bar_slot]) 
+        bar_cbs[bar_slot]() 
+    end
 end 
  
 function game.MouseMoved(mx,my) 
