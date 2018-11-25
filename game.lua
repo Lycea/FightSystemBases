@@ -5,6 +5,7 @@ local ids = require("libs.id_list")
  
 local ui = require("libs.SimpleUI.SimpleUI") 
 local cam = require("libs.cam.camera") 
+
  
 local game ={} 
  
@@ -79,9 +80,7 @@ function Slot:new(x,y)
   tmp.y = y 
    
   tmp.draw = function(self)  
-    love.graphics.setColor(221,143,40) 
-    love.graphics.rectangle("fill",self.x,self.y,32,32) 
-    love.graphics.setBackgroundColor(0,0,0) 
+    draw.tile(crops,1,#crops,self.x,self.y)
     end 
   tmp.update = function() end 
    
@@ -106,12 +105,9 @@ function Tiled:new(x,y)
  
   tmp.draw = function(self) 
     if self.watered == false then 
-      love.graphics.setColor(164,100,34) 
-      love.graphics.rectangle("fill",self.x,self.y,32,32) 
-      --print("drawing...") 
+      draw.tile(crops,1,#crops,self.x,self.y)
     else 
-      love.graphics.setColor(95,57,6) 
-      love.graphics.rectangle("fill",self.x,self.y,32,32) 
+      draw.tile(crops,2,#crops,self.x,self.y)
     end 
   end 
    
@@ -542,7 +538,10 @@ function game.keyHandle(key,s,r,pressed_)
   if tonumber(key) then  
     bar_slot= key 
     print(bar_slot) 
+    return
   end 
+  
+  if key == "a" then game.MouseHandle(0,0,1) end
    
 end 
  
