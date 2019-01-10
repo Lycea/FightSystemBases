@@ -23,7 +23,11 @@ local g_id = 1
 local groups ={ }
 
 local lg = love.graphics
-  local settings =
+local settings = {}
+
+local maj =love.getVersion()
+if maj < 11 then
+  settings =
   {
     --      border col             background       label/font                 hover   clicked
     button={
@@ -35,6 +39,21 @@ local lg = love.graphics
             font = nil
             }
   }
+else
+  settings =
+  {
+    --      border col             background       label/font                 hover   clicked
+    button={
+            border_color={255/255,255/255,255/255,255/255},
+            default_color={0,0,0,0,255/255},
+            font_color={255/255,255/255,255/255,255/255},
+            hover_color={50/255,50/255,50/255,250/255},
+            clicked_color={0,50/255,0,255/255},
+            font = nil
+            }
+  }
+end
+
   
   
 
@@ -191,6 +210,11 @@ function ui.AddCheckbox(label,x,y,value)
   temp.checked = value or false
   
   temp.color = settings.button
+  
+  for k,v in pairs(settings.button) do
+    temp.color[k]=v
+  end
+      
   temp.ClickEvent = components.ClickEvent
   
   components[id] =cb:new(temp)

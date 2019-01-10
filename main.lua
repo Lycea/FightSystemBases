@@ -34,8 +34,13 @@ function love.keyreleased(k)
 end
 
 function love.mousepressed(x,y,btn,t)
-  game.MouseHandle(x,y,btn,t)
+  game.MouseHandle(x,y,btn,t,false)
 end
+
+function love.mousereleased(x,y,btn)
+  game.MouseHandle(x,y,btn,t,true)
+end
+
 
 function love.mousemoved(x,y,dx,dy)
     game.MouseMoved(x,y)

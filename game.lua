@@ -1,4 +1,6 @@
 --import of basic stuff 
+require("libs.globals")
+
 local loader =require("libs.loader") 
 local draw =require("libs.drawer") 
 local ids = require("libs.id_list") 
@@ -21,16 +23,17 @@ local base={}
 ------------------------------------------------------------ 
  
 --screen params, needed for some placements (and camera ?) 
-local scr_width  = 0 
-local scr_height = 0 
+ scr_width  = 0 
+ scr_height = 0 
  
 local gui ={} 
 local crops = "" 
+local tools = ""
 local fields ={ 
    
 } 
  
-local player={ 
+player={ 
     x=200, 
     y=200, 
     speed=3 
@@ -48,7 +51,7 @@ local dir_look ={
 ------------------------ 
  
 local last_key="space" 
-local key_list ={} 
+ key_list ={} 
 local bar_slot ="1"
  
 ----------------------------------------------------------- 
@@ -60,106 +63,17 @@ local field_lines={}
 local slot_preview={} 
  
 --TODO: setup callbacks 
+local bar_items = {
+    weapons.sword_1
+    }
 local bar_cbs={ 
+    weapons.attack
     } 
  
 --------------------------------------------------------------------------------------------------- 
 --base crop/field classes   
 --------------------------------------------------------------------------------------------------- 
-local Slot ={} 
- 
---normal farm slot that can be tiled .... 
-function Slot:new(x,y) 
-  local tmp={} 
-  tmp.state   = 0 
-  tmp.crop    = 0 
-  tmp.watered = false 
-  tmp.tiled   = false 
-   
-  tmp.x = x 
-  tmp.y = y 
-   
-  tmp.draw = function(self)  
-    draw.tile(crops,1,#crops,self.x,self.y)
-    end 
-  tmp.update = function() end 
-   
-  setmetatable(tmp, self) 
-  self.__index = self 
-   
-  return tmp 
-end 
- 
---tiled farm slot  (hoed one) 
---has a wartered state 
-local Tiled={} 
-function Tiled:new(x,y) 
-  local tmp ={} 
-  tmp.state   = 0 
-  tmp.crop    = 0 
-  tmp.watered = false 
-  tmp.tiled   = true 
- 
-  tmp.x = x 
-  tmp.y = y 
- 
-  tmp.draw = function(self) 
-    if self.watered == false then 
-      draw.tile(crops,1,#crops,self.x,self.y)
-    else 
-      draw.tile(crops,2,#crops,self.x,self.y)
-    end 
-  end 
-   
-  tmp.update = function() end 
-   
-  setmetatable(tmp, self) 
-  self.__index = self 
-   
-  return tmp 
-end 
- 
- 
- 
-local Crop={} 
-function Crop:new(x,y,crop,water) 
-  local tmp ={} 
-  tmp.state   = 1 --state in which the plant is in
-  tmp.crop    = crop   --what kind of plant is it ?
-  tmp.watered = water or false 
-  tmp.days_max =12 --how long till it is fully grown ?
-  tmp.tps = math.floor(tmp.days_max/4) 
-  tmp.time = 0  --actual state in the actual frame
-   
-  tmp.x = x 
-  tmp.y = y 
- 
-  tmp.draw = function(self) 
-    if self.watered == false then 
-      draw.tile(crops,self.state,self.crop,x,y) 
-    else 
-      draw.tile(crops,self.state,self.crop+1,x,y) 
-    end 
-  end 
-   
-  tmp.update = function(self)
-      if self.watered == true then
-         self.time= self.time +1 
-          if self.time > self.tps and self.state <4 and self.watered == true then 
-            tmp.state = tmp.state+1 
-            tmp.time = 0 
-          end 
-      
-      end
-  end 
-   
-  setmetatable(tmp, self) 
-  self.__index = self 
-   
-  return tmp 
-end 
- 
- 
+
  
  
 ---------------------------------------------------------------------------- 
@@ -168,45 +82,7 @@ end
  
 local function clamp(low, n, high) return math.min(math.max(low, n), high) end 
  
-local function CheckPlayerForField() 
-     
-   field_lines={} 
-   slot_preview={} 
-    
-   --get player vars 
-   local mx,my =player.x,player.y 
-    
-    --right now only check fields and show outline if there :P 
-    for idx,field in ipairs(fields) do 
-       local x,y = field.x,field.y 
-       local w,h = field.w,field.h 
-        
-        
-        
-       if mx >= x-20 and mx<= x+w*32 +20 and 
-          my >= y-20 and my <= y+w*32 +20 then 
-              --print("in field "..idx) 
-           local width = w*32 --asuming tile size 32 
-           local height = h*32 
-           --get relative position 
-           local x_r,y_r = player.x- x,player.y-y 
-           local grid_x,grid_y = math.ceil(x_r/32),math.ceil(y_r/32) 
-            
-           --print(grid_x,grid_y) 
-           if grid_x <=width and grid_y <= height then 
-            table.insert(slot_preview,{id=idx,x=grid_x,y=grid_y}) 
-           else 
-               print("nopa copa") 
-           end 
-            
-            
-           table.insert(field_lines,idx) 
-            
-            
-       end 
-        
-    end 
-end 
+
  
  
 ----------------- 
@@ -236,21 +112,7 @@ local move={
 } 
  
 local timer_move = 0 
-local function check_keys2 (dt) 
-    if love.keyboard.isDown(last_key) then 
-        move[last_key]() 
-      --print(dt.. "time") 
-      local x,y =love.mouse.getPosition() 
-      --update the mouse info,cause it could change its state without moving  
-      --because the camera moved 
-      game.MouseMoved(x,y) 
-      timer_move = 0 
-       
-      CheckPlayerForField() 
-    else 
-      timer_move = timer_move +dt 
-    end 
-end 
+
  
 local function check_keys (dt) 
      
@@ -261,105 +123,11 @@ local function check_keys (dt)
     local x,y =love.mouse.getPosition() 
     game.MouseMoved(x,y) 
      
-       
-    CheckPlayerForField() 
-     
 end 
 ---------------------------------------------------------------------------- 
 --General mechanic functions 
 ---------------------------------------------------------------------------- 
- 
- 
--- x,y = start position of the field 
--- w,h = tiles on the field 
-local function new_field(x,y,w,h) 
-    local tmp ={} 
-      
-    tmp.pos={} 
-    tmp.grid={} 
-    tmp.x =x 
-    tmp.y =y 
-    tmp.w = w 
-    tmp.h = h 
-     
-    for i=1,h do 
-      tmp.grid[i]={} 
-      for j=1,w do 
-        tmp.grid[i][j] = Slot:new((j)*32+x -32,(i)*32+y -32) 
-      end 
-    end 
-     
-    return tmp 
-end 
- 
- 
- 
 
- 
- 
-function base.tileActual()
-     for idx,slot in pairs(slot_preview) do
-         fields[slot.id].grid[slot.y][slot.x]=Tiled:new(slot.x*32+fields[slot.id].x-32,slot.y*32+fields[slot.id].y-32)
-     end
- end
- 
- function base.waterActual()
-     for idx,slot in pairs(slot_preview) do
-         fields[slot.id].grid[slot.y][slot.x].watered = true
-     end
-     
- end
- 
- function base.plantActual()
-     for idx,slot in pairs(slot_preview) do
-        if fields[slot.id].grid[slot.y][slot.x].tiled == true then
-         fields[slot.id].grid[slot.y][slot.x] = Crop:new(slot.x*32+fields[slot.id].x-32,slot.y*32+fields[slot.id].y-32,1,fields[slot.id].grid[slot.y][slot.x].watered)
-        end
-     end
- end
- 
- 
- 
---test function to tile all the fields on a field 
---can later be changed to a single one and called when needed 
-function base.tileField(field_idx) 
-  local bx,by = fields[field_idx].x,fields[field_idx].y 
-     
-  for y,row in ipairs(fields[field_idx].grid) do 
-    for x,spot in ipairs(row) do 
-      fields[field_idx].grid[y][x] =Tiled:new(x*32+bx-32,y*32+by-32) 
-    end 
-  end 
-end 
- 
---test function for planting all slots in a field at once  
---with a specific seed 
---can later be adapted to only  plant one at once 
- function base.plantField(field_idx,seed_type) 
-  local seed = seed_type or 1 
-  local bx,by = fields[field_idx].x,fields[field_idx].y 
- 
-  for y,row in ipairs(fields[field_idx].grid) do 
-    for x,spot in ipairs(row) do 
-      fields[field_idx].grid[y][x] =Crop:new(x*32+bx-32,y*32+by-32,seed) 
-    end 
-  end 
-end 
- 
- 
---function that updates all the fields 
---when the user is sleeping 
-function base.sleep() 
-    for i,field in ipairs(fields) do 
-      for y,row in ipairs(field.grid) do 
-        for x,spot in ipairs(row) do 
-          if spot.state ~=0 then 
-            fields[i].grid[y][x]:update() 
-          end 
-        end 
-      end 
-    end 
-end 
  
 local old_clicked=0 
 function cb_handle(id,name) 
@@ -390,38 +158,21 @@ function game.load()
   player.x =0 
   player.y =0 
    
-  crops = loader.loadTiles("assets/crops.png",32,32) 
-  fields[1]=new_field(10,50,5,5) 
-  fields[2]=new_field(10,10,5,5) 
-  fields[3]=new_field(32*8,32*5,10,10) 
-   
-  bar_cbs={ 
-      ["1"]=base.tileActual, 
-      ["2"]=base.plantActual, 
-      ["3"]=base.waterActual 
-      } 
-   
-  ui.init() 
-  ui.AddClickHandle(cb_handle) 
-   
-  --setup the ui if not there 
-  if ui.CountElements()==0 then 
-      table:insert(ui.AddButton("tile",300,100,10,10)) 
-      table:insert(ui.AddButton("plant",200,100,10,10)) 
-      table:insert(ui.AddButton("sleep",400,100,10,10)) 
-  else 
-      for idx, id in ipairs(table) do 
-          ui.SetSpecialCallback(id,cb_handle) 
-      end 
-  end 
+ 
    
   --cam base pos  
   cam:setPosition(player.x -scr_width/2 +32,player.y -scr_height/2+32) 
+  
+  mob:new(50,50)
+  mob:new(100,100)
+  console.setPos(scr_width-250,0)
+  console.setSize(250,200)
 end 
  
  
 function game.update(dt) 
   check_keys(dt) 
+  process_list()
   ui.update() 
 end 
  
@@ -434,13 +185,13 @@ function game.draw()
    
   cam:set() 
   --draw the fields 
-  for idx,field in ipairs(fields) do 
-    for i,row in ipairs(fields[idx].grid) do 
-        for j,spot in ipairs(row) do 
-          spot:draw() 
-        end 
-      end 
-   end 
+  for k,v in pairs(mobs)do
+        
+        v:draw()
+        v:update(k)
+  end
+  
+  
   --reset the color once .. 
   love.graphics.setColor(0xff,0xff,0xff) 
    
@@ -448,25 +199,13 @@ function game.draw()
   --start debug visu (only when turned on) 
   ------------------ 
   if debug == true then 
-     for idx, id in ipairs(field_lines) do 
-         local x,y,w,h = fields[id].x,fields[id].y,fields[id].w,fields[id].h 
-         love.graphics.rectangle("line",x,y,w*32,h*32) 
-      end 
-       
-      for idx,data in ipairs(slot_preview) do 
-        --print("Id: "..data.id) 
-        --print("x: "..data.x.." y: "..data.y) 
-        data.x = clamp(1,data.x,fields[data.id].w) 
-        data.y = clamp(1,data.y,fields[data.id].h) 
-        local slot = fields[data.id].grid[data.y][data.x] 
-        love.graphics.rectangle("line",slot.x,slot.y,32,32) 
-      end 
+
   end 
   cam:unset() 
    
    -- draw player 
   love.graphics.rectangle("fill",scr_width/2-32,scr_height/2-32,32,32) 
-   
+  draw_list()
    
   --TODO: Put item bar in seperate class for handling 
   -- draw "item bar" 
@@ -489,14 +228,17 @@ function game.draw()
     love.graphics.rectangle("line",pos_x +4,scr_height-60,ppi-8,52) 
   end 
    
+   draw_list()
    
-  ui.draw() 
+   test_drawer()
+  console.draw()
+  --ui.draw() 
 end 
  
  
  
  
-local key_lookup={ 
+ key_lookup={ 
     left=true, 
     up=true, 
     down=true, 
@@ -536,7 +278,7 @@ function game.keyHandle(key,s,r,pressed_)
    
   --get the numbers 
   if tonumber(key) then  
-    bar_slot= key 
+    bar_slot= tonumber(key) 
     print(bar_slot) 
     return
   end 
@@ -545,15 +287,24 @@ function game.keyHandle(key,s,r,pressed_)
    
 end 
  
- 
-function game.MouseHandle(x,y,btn) 
+ local clicked_start=0
+function game.MouseHandle(x,y,btn,release) 
     if btn == 1 then
-        for key,val in pairs(bar_cbs) do
+        for key,val in pairs(weapons) do
             print(key,value)
         end
         
-        print(bar_cbs[bar_slot]) 
-        bar_cbs[bar_slot]() 
+        for key,val in pairs(bar_cbs) do
+            print(key,value)
+        end
+        print("----")
+        print(bar_slot)
+        print(bar_cbs[tonumber(bar_slot)]) 
+        print(bar_items[tonumber(bar_slot)].name)
+        
+        
+        print("----")
+        bar_cbs[tonumber(bar_slot)](bar_items[tonumber(bar_slot)])
     end
 end 
  
