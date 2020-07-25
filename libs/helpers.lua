@@ -7,6 +7,38 @@ local angles ={[2]=-90,[4]=0,[8]=90,[16]=180,
 }
 
 
+local norm_dirs ={
+    [2]={0,-1},--up
+    [4]={1,0},--right
+    [8]={0,1},--down
+    [16]={-1,0},--left
+    
+    [6]={1,-1},--top_right
+    [12] ={1,1},--bottom_right
+    [24] ={-1,1},--bottom-left
+    [18] ={-1,-1}--top-left
+    }
+
+
+function dir_to_move_dir()
+     local dir = 0
+    local added  = 0
+    for k,v in pairs(key_list)do
+        
+        dir = dir+ math.pow(2,dirs[k])
+        added = added +1
+    end
+    
+    if added ~= 0 then
+        print(angles[dir])
+        dir =norm_dirs[dir]
+    else 
+        dir = nil
+    end
+    return dir
+end
+
+
 function dir_to_angle()
 
     local dir = 0

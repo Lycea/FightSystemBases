@@ -6,7 +6,11 @@ base_class= classes:extend()
 game =require("game")
 l = require("libs.extern.lurker")
 
-
+local oldprint = print
+print = function(...)
+    oldprint("In ur print!");
+    oldprint(...);
+end
 
 function love.load(args)
   require("mobdebug").start()

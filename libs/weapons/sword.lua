@@ -1,5 +1,6 @@
  sword = weapons.base_weapon:extend()
 
+checked_point={0,0}
 
 function sword:new( param_obj)
     sword.super.new(self)
@@ -42,6 +43,8 @@ function sword:check_mobs()
         local x = self.range*math.sin(math.rad(self.angle_done-heading+self.angle/2))+player.x
         local y = self.range*math.cos(math.rad(self.angle_done-heading+self.angle/2))+player.y
         
+        
+        checked_point={x,y}
         --console.log("Player: "..player.x.." "..player.y)
         --console.log("Weapon: "..x.." "..y)
         
@@ -95,7 +98,10 @@ function sword:update()
     if self.angle_done >= self.angle then
         self.active = false
         self.weapon_in_list = false
-        table.remove(update_list,list_idx)
+        
+        --if return true it will delete the item after the frame
+        return true
+        
     end
     
 end
@@ -117,6 +123,9 @@ function sword:draw()
     love.graphics.arc( "line", scr_width/2-16, scr_height/2-16, self.range, math.rad(dir-self.angle/2), math.rad(dir+self.angle/2) )
     
     self.last_dir = dir
+    
+    love.graphics.setColor(1,1,1)
+    love.graphics.circle("line",  scr_width/2-16 +checked_point[1],scr_height/2 +checked_point[2],2)
 end
 
 --debug drawer

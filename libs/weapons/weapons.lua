@@ -1,5 +1,5 @@
 local weapons={}
-ranged={}
+
 
 weapon_ = 0
 

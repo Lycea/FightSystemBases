@@ -55,6 +55,8 @@ local dir_look ={
 local last_key="space" 
  key_list ={} 
 local bar_slot ="1"
+
+particle_list ={}
  
 ----------------------------------------------------------- 
 -- special data fields for debugging / testing only 
@@ -171,6 +173,7 @@ function game.load()
   console.setSize(250,200)
   
   bar_items[1]=weapons.sword(weapon_list.sword_1)
+  bar_items[2]=weapons.ranged()
   
 end 
  
@@ -189,7 +192,15 @@ function game.draw()
   -------------------- 
    
   cam:set() 
-  --draw the fields 
+  
+  
+  for k,v in pairs(particle_list)do
+        v:update(k)
+        v:draw()
+  end
+  
+  
+  --draw the enimies 
   for k,v in pairs(mobs)do
         
         v:draw()

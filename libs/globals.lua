@@ -3,6 +3,13 @@ print(BASE)
 local i= BASE:find("globals.$")
 print (i)
 BASE=BASE:sub(1,i-1)
+
+
+
+particles={
+    base_particle = require(BASE.."particles.base_particle")
+    }
+
 weapons = {base_weapon=require(BASE.."weapons.weapons")}
 weapons.sword = require(BASE.."weapons.sword")
 weapons.ranged = require(BASE.."weapons.ranged")
@@ -34,12 +41,18 @@ function process_list()
             
         end
         print(v.name)
-        v:update()
+        v.delete_me = v:update() 
         
     end
 end
 
 function draw_list()
+    
+    for k,v in pairs(particle_list)do
+        v:check_mobs()
+    end
+    
+    
     for k,v in pairs(update_list)do
         list_idx = key
         print(v)
@@ -47,6 +60,10 @@ function draw_list()
         
         v:draw()
         v:check_mobs()
+        
+        if v.delete_me ==true then
+           table.remove(update_list,k) 
+        end
     end
     
     
