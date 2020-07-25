@@ -3,7 +3,9 @@ print(BASE)
 local i= BASE:find("globals.$")
 print (i)
 BASE=BASE:sub(1,i-1)
-require(BASE.."weapons")
+weapons = {base_weapon=require(BASE.."weapons.weapons")}
+weapons.sword = require(BASE.."weapons.sword")
+weapons.ranged = require(BASE.."weapons.ranged")
 require(BASE.."mobs")
 console = require(BASE.."console")
 test_string = "test string test"
@@ -29,9 +31,10 @@ function process_list()
         print(v)
         for ke,ve in pairs(v) do
             print(ke)
+            
         end
-        
-        weapons.update()
+        print(v.name)
+        v:update()
         
     end
 end
@@ -42,8 +45,8 @@ function draw_list()
         print(v)
 
         
-        weapons.draw_range()
-        weapons.check_mobs()
+        v:draw()
+        v:check_mobs()
     end
     
     

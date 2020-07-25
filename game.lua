@@ -1,6 +1,8 @@
 --import of basic stuff 
 require("libs.globals")
 
+require("libs.helpers")
+
 local loader =require("libs.loader") 
 local draw =require("libs.drawer") 
 local ids = require("libs.id_list") 
@@ -64,7 +66,7 @@ local slot_preview={}
  
 --TODO: setup callbacks 
 local bar_items = {
-    weapons.sword_1
+    weapons.sword(weapon_list.sword_1)
     }
 local bar_cbs={ 
     weapons.attack
@@ -167,6 +169,9 @@ function game.load()
   mob:new(100,100)
   console.setPos(scr_width-250,0)
   console.setSize(250,200)
+  
+  bar_items[1]=weapons.sword(weapon_list.sword_1)
+  
 end 
  
  
@@ -304,7 +309,7 @@ function game.MouseHandle(x,y,btn,release)
         
         
         print("----")
-        bar_cbs[tonumber(bar_slot)](bar_items[tonumber(bar_slot)])
+        bar_items[tonumber(bar_slot)]:attack()
     end
 end 
  
