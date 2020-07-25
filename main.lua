@@ -1,8 +1,15 @@
+local classes = require("libs.extern.classic")
+
+base_class= classes:extend()
+
+
 game =require("game")
-l = require("libs.lurker")
+l = require("libs.extern.lurker")
+
+
 
 function love.load(args)
-  --require("mobdebug").start()
+  require("mobdebug").start()
   
   game.load()
   
@@ -34,8 +41,13 @@ function love.keyreleased(k)
 end
 
 function love.mousepressed(x,y,btn,t)
-  game.MouseHandle(x,y,btn,t)
+  game.MouseHandle(x,y,btn,t,false)
 end
+
+function love.mousereleased(x,y,btn)
+  game.MouseHandle(x,y,btn,t,true)
+end
+
 
 function love.mousemoved(x,y,dx,dy)
     game.MouseMoved(x,y)
