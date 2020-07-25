@@ -1,17 +1,28 @@
 weapons={}
-
+ranged={}
 
 weapon_ = 0
 
+local weapon_in_list = false
 
 
-local dirs={up=1,down=3,left=4,right=2}
+
+local dirs={w=1,s=3,a=4,d=2}
 local angles ={[2]=-90,[4]=0,[8]=90,[16]=180,
     [6]=-45,--top_right
     [12] =45,--bottom_right
     [24] =135,--bottom-left
     [18] =-135
-    }
+}
+
+
+
+--local type_lookup={"sword"=weapons,"ranged"=""}
+
+
+-----------------------------------------
+----  Helper functions
+-----------------------------------------
 local function dir_to_angle()
     
     local dir = 0
@@ -32,19 +43,10 @@ local function dir_to_angle()
     
 end
 
---sword
-function weapons.attack(weapon)
-    print("test")
-    print(weapon)
-    
-    weapon_ = weapon
-    weapon.active = true
-    weapon.angle_done = weapon.speed
-    table.insert(update_list,weapon)
-    print("attacking")
-end
-
+--distance between two points
 function math.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end
+
+--angle between two points
 function math.angle(x1,y1, x2,y2) return math.atan2(y2-y1, x2-x1) end
 
 
@@ -65,6 +67,33 @@ local function pointOnLine(x1,y1,x2,y2,px,py)
         return false
     end
 end
+------------------------------------------------
+-- BASE_HOOKS
+------------------------------------------------
+
+
+
+------------------------------------------------
+-- MELEE
+------------------------------------------------
+
+
+--sword
+function weapons.attack(weapon)
+    print("test")
+    print(weapon)
+    
+    if weapon_in_list ==false then
+    weapon_ = weapon
+    weapon.active = true
+    weapon.angle_done = weapon.speed
+    table.insert(update_list,weapon)
+    print("attacking")
+    weapon_in_list = truef
+    end
+end
+
+
 
 
 function weapons.check_mobs()
@@ -76,9 +105,11 @@ function weapons.check_mobs()
         --love.graphics.line(player.x,player.y,v.x,v.y)
         
         local heading =dir_to_angle()
-        if heading == nil then
+        if heading == nil and weapon_.active == false then
             return
         end
+        console.log("checking_mob")
+        heading = (heading or weapon_.last_dir) or 0
         
         local x = weapon_.range*math.sin(math.rad(weapon_.angle_done-heading+weapon_.angle/2))+player.x
         local y = weapon_.range*math.cos(math.rad(weapon_.angle_done-heading+weapon_.angle/2))+player.y
@@ -132,9 +163,11 @@ end
 
 function weapons.update()
     weapon_.angle_done = weapon_.angle_done+weapon_.speed
+    
+    --if weapon is done remove from list
     if weapon_.angle_done >= weapon_.angle then
         weapon_.active = false
-        
+        weapon_in_list = false
         table.remove(update_list,list_idx)
     end
 end
@@ -146,24 +179,30 @@ function weapons.draw_range()
     
     local dir = dir_to_angle()
     
-    if dir == nil then
+    if dir == nil and weapon_.active ==false then
        return 
     end
+    
+    dir = (dir or weapon_.last_dir) or 0
+    print(dir)
     love.graphics.print(dir,0,100)
     local x = weapon_.range*math.sin(math.rad(weapon_.angle_done-dir+weapon_.angle/2))+scr_width/2-16
     local y = weapon_.range*math.cos(math.rad(weapon_.angle_done-dir+weapon_.angle/2))+scr_height/2-16
     
     love.graphics.line(scr_width/2-16,scr_height/2-16,x,y)
     love.graphics.arc( "line", scr_width/2-16, scr_height/2-16, weapon_.range, math.rad(dir-weapon_.angle/2), math.rad(dir+weapon_.angle/2) )
+    
+    weapon_.last_dir = dir
 end
 
 
 weapons.sword_1={
     name="sword_1",
+    weapon_type="sword",
     demage = 1,
-    speed = 0.3,
+    speed = 1,
     active = false,
-    range = 40,
+    range = 50,
     angle = 90,
     
    

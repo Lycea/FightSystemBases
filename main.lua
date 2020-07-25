@@ -2,7 +2,7 @@ game =require("game")
 l = require("libs.lurker")
 
 function love.load(args)
-  --require("mobdebug").start()
+  require("mobdebug").start()
   
   game.load()
   

@@ -36,15 +36,15 @@ local fields ={
 player={ 
     x=200, 
     y=200, 
-    speed=3 
+    speed=1
 } 
  
  
 local dir_look ={ 
-    left = {-1,0}, 
-    right = {1,0}, 
-    up = {0,-1}, 
-    down = {0,1}, 
+    a = {-1,0}, 
+    d = {1,0}, 
+    w = {0,-1}, 
+    s = {0,1}, 
     } 
 ------------------------ 
 -- dynamic data 
@@ -89,22 +89,22 @@ local function clamp(low, n, high) return math.min(math.max(low, n), high) end
 ---key functions 
 ----------------- 
 local move={ 
-    left = function() 
+    a = function() 
         player.x= player.x -player.speed 
         cam:move(-player.speed) 
     end, 
      
-    right = function() 
+    d = function() 
         player.x= player.x +player.speed 
         cam:move(player.speed) 
     end, 
      
-    up=function() 
+    w=function() 
         player.y= player.y -player.speed 
         cam:move(0,-player.speed) 
     end, 
      
-    down = function() 
+    s = function() 
         player.y= player.y +player.speed 
         cam:move(0,player.speed) 
     end 
@@ -239,14 +239,14 @@ end
  
  
  key_lookup={ 
-    left=true, 
-    up=true, 
-    down=true, 
-    right=true 
+    a=true, 
+    w=true, 
+    s=true, 
+    d=true 
     } 
  
 function game.keyHandle2(key,s,r) 
-  if key == "left" or key == "right" or key == "up" or key == "down" then 
+  if key == "a" or key == "d" or key == "w" or key == "s" then 
     last_key = key 
     return 
   end 
@@ -283,7 +283,7 @@ function game.keyHandle(key,s,r,pressed_)
     return
   end 
   
-  if key == "a" then game.MouseHandle(0,0,1) end
+  if key == "b" then game.MouseHandle(0,0,1) end
    
 end 
  
