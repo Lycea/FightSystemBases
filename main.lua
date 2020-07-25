@@ -1,5 +1,9 @@
 game =require("game")
-l = require("libs.lurker")
+l = require("libs.extern.lurker")
+
+local classes = require("libs.extern.classic")
+
+base_class= classes:extend()
 
 function love.load(args)
   require("mobdebug").start()
